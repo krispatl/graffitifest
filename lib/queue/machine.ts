@@ -8,7 +8,8 @@ import type {
   Snapshot,
   Submission,
 } from '../types';
-import { TRANSITIONS } from '../types';
+import { TRANSITIONS, STYLES } from '../types';
+import { styleFor } from '../graffiti/StyleEngine';
 
 export const defaults: Settings = {
   style: 'RANDOM',
@@ -149,6 +150,9 @@ export function applyCommand(s: Installation, c: Command, now: number): void {
     'replay',
     'randomize',
     'regenerate',
+    'morph',
+    'effect',
+    'stop_effect',
     'clear',
   ];
   if (
@@ -222,6 +226,33 @@ export function applyCommand(s: Installation, c: Command, now: number): void {
         s.heldAt = null;
         setPhase(s, 'GENERATING', now);
       }
+      break;
+    case 'morph': {
+      if (!s.current || s.blackout || s.phase === 'TRANSITIONING')
+        throw new Error('Morph needs an active, visible piece before its exit transition.');
+      const old = s.current;
+      if (old.morph && now < old.morph.startedAt + old.morph.duration)
+        throw new Error('Let this morph finish before starting another.');
+      const currentStyle = styleFor(old.settings, old.seed);
+      const choices = STYLES.filter((style) => style !== 'RANDOM' && style !== currentStyle);
+      const style = !c.style || c.style === 'RANDOM' ? choices[randomInt(choices.length)] : c.style;
+      if (style === currentStyle) throw new Error('Choose a different style to morph into.');
+      old.morph = {
+        id: c.id,
+        fromSettings: structuredClone(old.settings),
+        startedAt: now,
+        duration: 3000,
+      };
+      old.settings = { ...old.settings, style };
+      break;
+    }
+    case 'effect':
+      if (!s.current || s.blackout || s.phase === 'TRANSITIONING' || !c.effect)
+        throw new Error('Animation needs an active, visible piece before its exit transition.');
+      s.current.effect = { id: c.id, kind: c.effect, startedAt: now, duration: 4000 };
+      break;
+    case 'stop_effect':
+      if (s.current) delete s.current.effect;
       break;
     case 'play':
       if (!entry) throw new Error('This name is no longer in the queue.');

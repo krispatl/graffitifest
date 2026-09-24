@@ -175,3 +175,62 @@ test('long names recompose without dropping letters; seeded randomness repeats',
     b = random(123);
   for (let i = 0; i < 100; i++) assert.equal(a(), b());
 });
+
+test('morph changes only the live style and survives HOLD, deduplication, and refresh', () => {
+  const s = playing();
+  tick(s, 13000);
+  cmd(s, 'hold', 14000);
+  s.current!.settings.style = 'BLOCK';
+  const before = structuredClone(s);
+  const command: Command = {
+    id: randomUUID(),
+    action: 'morph',
+    style: 'TAG',
+    performanceId: s.current!.id,
+  };
+  applyCommand(s, command, 15000);
+  assert.equal(s.current!.id, before.current!.id);
+  assert.equal(s.current!.seed, before.current!.seed);
+  assert.equal(s.current!.name, before.current!.name);
+  assert.equal(s.current!.settings.style, 'TAG');
+  assert.deepEqual(s.current!.morph!.fromSettings, before.current!.settings);
+  assert.equal(s.phaseStartedAt, before.phaseStartedAt);
+  assert.equal(s.heldAt, before.heldAt);
+  assert.deepEqual(s.queue, before.queue);
+  assert.deepEqual(s.settings, before.settings, 'future pieces keep their existing art settings');
+  applyCommand(s, command, 16000);
+  assert.equal(s.current!.morph!.startedAt, 15000);
+  assert.throws(() => cmd(s, 'morph', 16000, { style: 'CHROME' }), /finish/);
+  const restored = JSON.parse(JSON.stringify(s));
+  cmd(restored, 'morph', 19000, { style: 'CHROME', performanceId: s.current!.id });
+  assert.equal(restored.current.morph.fromSettings.style, 'TAG');
+  assert.equal(restored.current.settings.style, 'CHROME');
+});
+
+test('live effects are scoped to the piece and reject stale or invisible targets', () => {
+  const s = playing();
+  tick(s, 13000);
+  cmd(s, 'hold', 14000);
+  const currentId = s.current!.id;
+  cmd(s, 'effect', 15000, { effect: 'WAVE', performanceId: currentId });
+  assert.equal(s.current!.effect!.kind, 'WAVE');
+  assert.equal(s.heldAt, 14000);
+  assert.equal(snapshot(s, 16000).current!.effect!.startedAt, 15000);
+  cmd(s, 'stop_effect', 16000, { performanceId: currentId });
+  assert.equal(s.current!.effect, undefined);
+  assert.throws(
+    () => cmd(s, 'effect', 16000, { effect: 'PULSE', performanceId: randomUUID() }),
+    /moved on/,
+  );
+  cmd(s, 'blackout', 17000);
+  assert.throws(() => cmd(s, 'effect', 17000, { effect: 'PULSE' }), /visible/);
+  assert.throws(() => cmd(s, 'morph', 17000), /visible/);
+  cmd(s, 'blackout', 18000);
+  cmd(s, 'effect', 18000, { effect: 'SPRAY' });
+  cmd(s, 'next', 19000);
+  assert.throws(() => cmd(s, 'morph', 19000), /transition/);
+  tick(s, 23000);
+  assert.equal(s.current!.name, 'MARIA');
+  assert.equal(s.current!.effect, undefined);
+  assert.equal(s.current!.morph, undefined);
+});

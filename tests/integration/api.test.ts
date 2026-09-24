@@ -105,6 +105,7 @@ test(
       await command('settings', {
         settings: {
           autoAdvance: false,
+          style: 'BLOCK',
           introTime: 0.2,
           drawTime: 1,
           detailTime: 0.2,
@@ -138,6 +139,21 @@ test(
       await command('hold', { performanceId });
       const hold = await (await call('/api/state')).json();
       assert.ok(hold.heldAt);
+      const morph = await command('morph', {
+        performanceId,
+        style: hero.current.settings.style === 'TAG' ? 'BLOCK' : 'TAG',
+      });
+      assert.equal(morph.current.id, performanceId);
+      assert.equal(morph.heldAt, hold.heldAt);
+      assert.ok(morph.current.morph.id);
+      const fx = await command('effect', { performanceId, effect: 'WAVE' });
+      assert.equal(fx.current.effect.kind, 'WAVE');
+      const projectedFx = await (await call('/api/state')).json();
+      assert.equal(projectedFx.current.effect.id, fx.current.effect.id);
+      assert.equal(projectedFx.current.morph.id, morph.current.morph.id);
+      await command('stop_effect', { performanceId });
+      assert.equal((await (await call('/api/state')).json()).current.effect, undefined);
+
       await command('blackout');
       assert.equal((await (await call('/api/state')).json()).blackout, true);
       await command('blackout');

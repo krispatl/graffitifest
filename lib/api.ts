@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { STYLES, PALETTES, TRANSITIONS } from './types';
+import { STYLES, PALETTES, TRANSITIONS, LIVE_EFFECTS } from './types';
 export class HttpError extends Error {
   constructor(
     public status: number,
@@ -113,6 +113,9 @@ export const commandSchema = z
       'replay',
       'randomize',
       'regenerate',
+      'morph',
+      'effect',
+      'stop_effect',
       'clear',
       'blackout',
       'reset_renderer',
@@ -127,9 +130,21 @@ export const commandSchema = z
       'unblock',
       'settings',
     ]),
+    style: z.enum(STYLES).optional(),
+    effect: z.enum(LIVE_EFFECTS).optional(),
     submissionId: z.string().uuid().optional(),
     name: nameSchema.optional(),
     settings: settingsSchema.optional(),
     performanceId: z.string().uuid().nullable().optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((c, ctx) => {
+    if (['morph', 'effect', 'stop_effect'].includes(c.action) && !c.performanceId)
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Select an active performance.',
+        path: ['performanceId'],
+      });
+    if (c.action === 'effect' && !c.effect)
+      ctx.addIssue({ code: 'custom', message: 'Choose an animation effect.', path: ['effect'] });
+  });

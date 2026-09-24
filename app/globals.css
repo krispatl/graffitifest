@@ -1600,3 +1600,66 @@ label {
 .control-tabs button {
   font-size: 12px;
 }
+
+/* Live performance controls follow the existing operator desk. */
+.live-fx {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+  margin-top: 20px;
+}
+.live-fx label {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin: 18px 0 9px;
+}
+.morph-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.morph-row select {
+  min-width: 0;
+  width: 100%;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 12px 8px;
+  font-size: 12px;
+}
+.morph-row button {
+  padding-inline: 8px;
+  font-size: 12px;
+}
+.fx-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.fx-buttons button {
+  padding: 12px 4px;
+  font-size: 11px;
+}
+.fx-buttons button.active {
+  border-color: var(--lime);
+  color: var(--lime);
+  background: #2b3023;
+}
+.fx-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.fx-footer p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.fx-footer button {
+  flex-shrink: 0;
+  font-size: 10px;
+}

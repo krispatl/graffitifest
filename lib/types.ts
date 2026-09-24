@@ -28,6 +28,8 @@ export const TRANSITIONS = [
   'WALL SHIFT',
   'GLITCH',
 ] as const;
+export const LIVE_EFFECTS = ['PULSE', 'WAVE', 'GLITCH', 'SPRAY'] as const;
+export type LiveEffect = (typeof LIVE_EFFECTS)[number];
 export type Phase = 'IDLE' | 'GENERATING' | 'DRAWING' | 'DETAIL' | 'HERO' | 'TRANSITIONING';
 export type Settings = {
   style: (typeof STYLES)[number];
@@ -67,6 +69,8 @@ export type Performance = {
   settings: Settings;
   startedAt: number;
   transition: Exclude<Settings['transition'], 'RANDOM'>;
+  morph?: { id: string; fromSettings: Settings; startedAt: number; duration: number };
+  effect?: { id: string; kind: LiveEffect; startedAt: number; duration: number };
 };
 export type Installation = {
   version: number;
@@ -115,6 +119,9 @@ export type Command = {
     | 'replay'
     | 'randomize'
     | 'regenerate'
+    | 'morph'
+    | 'effect'
+    | 'stop_effect'
     | 'clear'
     | 'blackout'
     | 'reset_renderer'
@@ -128,6 +135,8 @@ export type Command = {
     | 'edit'
     | 'unblock'
     | 'settings';
+  style?: Settings['style'];
+  effect?: LiveEffect;
   submissionId?: string;
   name?: string;
   settings?: Partial<Settings>;

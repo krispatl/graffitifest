@@ -28,6 +28,7 @@ import {
 import { api, useClock, useInstallation } from '@/lib/realtime/useInstallation';
 import {
   PALETTES,
+  LIVE_EFFECTS,
   STYLES,
   TRANSITIONS,
   type Command,
@@ -47,7 +48,8 @@ export function Control() {
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(''),
     [confirm, setConfirm] = useState<Confirmation | null>(null),
-    [pairUrl, setPairUrl] = useState('');
+    [pairUrl, setPairUrl] = useState(''),
+    [morphStyle, setMorphStyle] = useState<Settings['style']>('RANDOM');
   const [selected, setSelected] = useState<string | null>(null);
   const now = useClock() + live.offset.current;
   async function login(e: React.FormEvent) {
@@ -79,6 +81,9 @@ export function Control() {
           'replay',
           'randomize',
           'regenerate',
+          'morph',
+          'effect',
+          'stop_effect',
           'clear',
         ].includes(action)
           ? { performanceId: s?.current?.id ?? null }
@@ -163,6 +168,14 @@ export function Control() {
         1000,
     ),
   );
+  const morphing = Boolean(
+    s.current?.morph && now < s.current.morph.startedAt + s.current.morph.duration,
+  );
+  const effectActive = Boolean(
+    s.current?.effect && now < s.current.effect.startedAt + s.current.effect.duration,
+  );
+  const liveFxDisabled =
+    busy || connection !== 'connected' || !s.current || s.blackout || s.phase === 'TRANSITIONING';
   const manual = s.phase === 'HERO' && (!cfg.autoAdvance || cfg.preset === 'MANUAL');
   const queue = s.queue ?? [],
     next = queue.find((x) => x.status === 'queued');
@@ -334,6 +347,57 @@ export function Control() {
                 <Square size={17} /> KILL / CLEAR
               </button>
             </div>
+            <section className="live-fx" aria-label="Live style and animation">
+              <div className="section-label">
+                <span>LIVE STYLE + FX</span>
+                <span aria-live="polite">
+                  {morphing ? 'MORPHING…' : effectActive ? s.current?.effect?.kind : 'READY'}
+                </span>
+              </div>
+              <label htmlFor="morph-style">MORPH INTO</label>
+              <div className="morph-row">
+                <select
+                  id="morph-style"
+                  value={morphStyle}
+                  onChange={(e) => setMorphStyle(e.target.value as Settings['style'])}
+                >
+                  {STYLES.map((style) => (
+                    <option key={style} value={style}>
+                      {style === 'RANDOM' ? 'SURPRISE ME' : style}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="primary"
+                  disabled={liveFxDisabled || morphing}
+                  onClick={() => void command('morph', { style: morphStyle })}
+                >
+                  <Shuffle size={17} />
+                  {morphing ? 'MORPHING…' : 'MORPH STYLE'}
+                </button>
+              </div>
+              <div className="fx-buttons">
+                {LIVE_EFFECTS.map((effect) => (
+                  <button
+                    key={effect}
+                    className={effectActive && s.current?.effect?.kind === effect ? 'active' : ''}
+                    disabled={liveFxDisabled}
+                    onClick={() => void command('effect', { effect })}
+                  >
+                    {effect}
+                  </button>
+                ))}
+              </div>
+              <div className="fx-footer">
+                <p>Same name. New movement. Works during HOLD.</p>
+                <button
+                  disabled={busy || connection !== 'connected' || !effectActive}
+                  onClick={() => void command('stop_effect')}
+                >
+                  STOP FX
+                </button>
+              </div>
+            </section>
             <div className="quick-timing">
               <div className="section-label">
                 <span>MASTER DURATION</span>
