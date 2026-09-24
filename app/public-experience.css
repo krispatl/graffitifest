@@ -1,0 +1,508 @@
+/* Public screens only. The operator desk keeps its original design system. */
+.audience {
+  --lime: #eaff35;
+  --ink: #f5f0e5;
+  --muted: #bcb7b1;
+  max-width: none;
+  padding: 28px 5vw 20px;
+  background: radial-gradient(ellipse at 10% 65%, #54223d55, transparent 52%), #151416;
+}
+.audience::before {
+  opacity: 0.1;
+  z-index: 1;
+}
+.audience::after {
+  content: '';
+  position: absolute;
+  width: 540px;
+  height: 540px;
+  right: -240px;
+  top: 90px;
+  border: 90px solid #ff4da2;
+  border-radius: 50%;
+  opacity: 0.13;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 24px #151416,
+    0 0 0 26px #ff4da2;
+}
+.audience-header,
+.audience-stage,
+.audience-footer {
+  z-index: 2;
+}
+.audience-header {
+  border-bottom: 1px solid #f5f0e54a;
+  padding-bottom: 20px;
+}
+.audience .wordmark,
+.wall-idle .wordmark,
+.wall-pair .wordmark {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 34px;
+  letter-spacing: -2px;
+  transform: rotate(-3deg);
+}
+.audience .wordmark span,
+.wall-idle .wordmark span,
+.wall-pair .wordmark span {
+  color: #ff4da2;
+}
+.audience .wordmark sup {
+  color: #eaff35;
+  font-size: 10px;
+}
+.audience .edition {
+  font: 11px/1.6 monospace;
+  letter-spacing: 0.13em;
+}
+.audience-stage {
+  padding: 30px 0 65px;
+  align-items: stretch;
+  text-align: left;
+}
+.audience-stage > .eyebrow {
+  margin: 0 0 28px;
+  font: 10px/1.5 monospace;
+  color: #eaff35;
+  letter-spacing: 0.12em;
+}
+.drop-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  align-items: center;
+  gap: 7vw;
+  width: 100%;
+  max-width: 1380px;
+  margin: auto;
+}
+.poster-copy {
+  position: relative;
+  padding-bottom: 15px;
+}
+.poster-kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 10px/1.4 monospace;
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+}
+.poster-kicker svg {
+  color: #ff4da2;
+}
+.audience .poster-copy h1 {
+  font-family: Bangers, Impact, sans-serif;
+  font-size: clamp(100px, 13.4vw, 205px);
+  line-height: 0.82;
+  letter-spacing: -0.012em;
+  transform: rotate(-3deg);
+  transform-origin: left center;
+  padding: 8px 0 20px;
+  text-shadow:
+    5px 5px 0 #151416,
+    6px 6px 0 #f5f0e54a;
+}
+.poster-copy h1 span {
+  color: #ff4da2;
+}
+.poster-caption {
+  margin-top: 25px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #d7d0ca;
+}
+.street-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 23px;
+  padding: 8px 11px;
+  border: 1px solid #eaff35;
+  color: #eaff35;
+  font: 10px monospace;
+  letter-spacing: 0.08em;
+  transform: rotate(-4deg);
+}
+.audience .tag-form {
+  position: relative;
+  width: 100%;
+  max-width: 470px;
+  margin: 20px 0 0;
+  background: #f5f0e5;
+  color: #151416;
+  border: 7px solid #f5f0e5;
+  border-radius: 9px;
+  transform: rotate(3deg);
+  box-shadow: 12px 14px 0 #0006;
+}
+.tag-form::before {
+  content: '';
+  position: absolute;
+  top: -22px;
+  left: 34%;
+  width: 110px;
+  height: 34px;
+  z-index: 2;
+  transform: rotate(-10deg);
+  background: #eaff35d9;
+  clip-path: polygon(
+    0 8%,
+    100% 0,
+    96% 15%,
+    100% 30%,
+    96% 50%,
+    100% 73%,
+    96% 100%,
+    0 95%,
+    4% 80%,
+    0 60%,
+    4% 40%
+  );
+}
+.tag-sticker-title {
+  background: #ff4da2;
+  text-align: center;
+  font:
+    64px/0.95 Anton,
+    sans-serif;
+  letter-spacing: 0.13em;
+  padding: 23px 15px 16px;
+  border-radius: 3px 3px 0 0;
+}
+.tag-sticker-title span {
+  display: block;
+  font:
+    20px/1.4 'Permanent Marker',
+    cursive;
+  letter-spacing: 0;
+  margin-top: 4px;
+}
+.tag-sticker-body {
+  padding: 25px 23px 18px;
+}
+.audience .tag-form label {
+  color: #5a5358;
+  font: 10px/1.5 monospace;
+  letter-spacing: 0.06em;
+}
+.audience .input-shell input {
+  background: transparent !important;
+  color: #151416;
+  border: 0 !important;
+  border-bottom: 2px solid #151416 !important;
+  border-radius: 0;
+  padding: 10px 48px 10px 0 !important;
+  font:
+    33px 'Permanent Marker',
+    cursive !important;
+  height: 83px !important;
+}
+.audience .input-shell input::placeholder {
+  color: #aaa39d;
+}
+.audience .input-shell > span {
+  right: 0;
+  color: #686066;
+  top: 39px;
+  font: 10px monospace;
+}
+.audience .input-shell input:focus-visible {
+  outline: 2px solid #ce2174;
+  outline-offset: 3px;
+}
+.audience .submit-tag {
+  margin-top: 22px;
+  background: #151416;
+  border: 2px solid #151416;
+  border-radius: 0;
+  color: #eaff35;
+  font:
+    22px Anton,
+    sans-serif;
+  letter-spacing: 0.04em;
+  height: 66px;
+  padding: 12px 16px;
+}
+.audience .submit-tag:disabled {
+  opacity: 0.55;
+}
+.audience .submit-tag:hover:not(:disabled) {
+  background: #eaff35;
+  color: #151416;
+  box-shadow: 4px 4px 0 #ff4da2;
+}
+.tag-sticker-body > p {
+  color: #665e63;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 16px;
+}
+.sticker-bottom {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px dashed #aaa39d;
+  padding: 13px 12px 8px;
+  font: 9px monospace;
+  letter-spacing: 0.03em;
+}
+.street-ticker {
+  position: relative;
+  z-index: 2;
+  margin: 0 -6vw 28px;
+  padding: 9px 0;
+  background: #eaff35;
+  color: #151416;
+  transform: rotate(-2deg);
+  overflow: hidden;
+  border-block: 2px solid #151416;
+  box-shadow: 0 0 0 1px #eaff35;
+}
+.street-ticker span {
+  display: block;
+  white-space: nowrap;
+  font:
+    22px Bangers,
+    sans-serif;
+  letter-spacing: 0.13em;
+  word-spacing: 0.3em;
+  text-align: center;
+}
+.audience-footer {
+  border: 0;
+  padding-top: 7px;
+  font: 10px/1.6 monospace;
+}
+.audience-footer b {
+  font: 9px/1.6 monospace;
+  color: #a9a1a5;
+  letter-spacing: 0;
+}
+.audience .registration {
+  color: #ff4da2;
+}
+.audience .receipt {
+  align-self: center;
+  text-align: center;
+  padding-block: 10px;
+}
+.audience .receipt h1 {
+  font-family: Bangers, sans-serif;
+  font-size: clamp(65px, 9vw, 130px);
+  line-height: 0.95;
+  transform: rotate(-2deg);
+}
+.audience .receipt .lime {
+  color: #ff4da2;
+}
+.audience .receipt-symbol {
+  color: #eaff35;
+}
+.audience .ticket {
+  background: #f5f0e5;
+  color: #151416;
+  border: 0;
+  border-top: 12px solid #ff4da2;
+  border-radius: 2px;
+  box-shadow: 8px 8px 0 #0005;
+  transform: rotate(2deg);
+}
+.audience .ticket-name {
+  font-family: 'Permanent Marker', cursive;
+}
+.audience .ticket small {
+  color: #665e63;
+}
+.audience .ticket strong {
+  color: #151416;
+}
+.audience .receipt > p {
+  color: #c6bfc3;
+}
+.audience .receipt .outline-button {
+  border-color: #eaff35;
+  color: #eaff35;
+}
+.wall-idle,
+.wall-pair {
+  --lime: #eaff35;
+  background: radial-gradient(ellipse at 15% 85%, #ff4da225, transparent 50%), #151416;
+}
+.wall-idle {
+  gap: 2.5vh;
+}
+.wall-idle::before {
+  content: '';
+  position: absolute;
+  inset: 3%;
+  border: 1px solid #f5f0e52b;
+  pointer-events: none;
+}
+.wall-idle > .wordmark {
+  font-size: clamp(25px, 3vw, 50px);
+}
+.wall-idle-kicker {
+  font: clamp(9px, 1vw, 16px) monospace;
+  letter-spacing: 0.2em;
+  color: #c4b9c2;
+}
+.wall-idle h1 {
+  font:
+    clamp(65px, 12vw, 210px)/0.88 Bangers,
+    sans-serif;
+  transform: rotate(-3deg);
+  margin-block: 2vh;
+}
+.wall-idle h1 .lime {
+  color: #ff4da2;
+}
+.wall-idle .wall-qr {
+  padding: 16px 24px;
+  background: #eaff35;
+  color: #151416;
+  transform: rotate(1deg);
+  box-shadow: 7px 7px 0 #ff4da2;
+}
+.wall-idle .wall-qr span {
+  color: #494638;
+}
+.wall-idle .wall-qr img {
+  width: clamp(80px, 9vw, 150px);
+}
+.wall-pair h1 {
+  font-family: Bangers, sans-serif;
+  transform: rotate(-3deg);
+}
+.wall-pair h1 .lime {
+  color: #ff4da2;
+}
+@media (min-width: 1600px) {
+  .audience {
+    padding-inline: max(5vw, calc((100vw - 1450px) / 2));
+  }
+}
+@media (max-width: 850px) {
+  .audience {
+    padding: 22px 6vw 20px;
+  }
+  .audience-header {
+    padding-bottom: 15px;
+  }
+  .audience .wordmark {
+    font-size: 29px;
+  }
+  .audience .edition {
+    font-size: 8px;
+    max-width: 100px;
+    text-align: right;
+  }
+  .audience-stage {
+    padding: 23px 0 46px;
+  }
+  .audience-stage > .eyebrow {
+    font-size: 9px;
+    margin-bottom: 24px;
+  }
+  .drop-layout {
+    gap: 36px;
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+  .poster-kicker {
+    font-size: 9px;
+    margin-bottom: 14px;
+  }
+  .poster-kicker svg {
+    width: 22px;
+    height: 22px;
+  }
+  .audience .poster-copy h1 {
+    font-size: clamp(94px, 20.8vw, 150px);
+    padding-bottom: 7px;
+  }
+  .poster-copy {
+    padding: 0;
+  }
+  .poster-caption {
+    font-size: 13px;
+    margin-top: 16px;
+  }
+  .street-stamp {
+    position: absolute;
+    right: 0;
+    bottom: 3px;
+    transform: rotate(8deg);
+    width: 96px;
+    font-size: 8px;
+    gap: 6px;
+    line-height: 1.5;
+  }
+  .street-stamp svg {
+    flex-shrink: 0;
+    width: 15px;
+  }
+  .audience .tag-form {
+    width: calc(100% - 12px);
+    max-width: none;
+    margin: 0 auto;
+    transform: rotate(2deg);
+    border-width: 5px;
+  }
+  .tag-sticker-title {
+    font-size: 48px;
+    padding: 17px 10px 11px;
+  }
+  .tag-sticker-title span {
+    font-size: 17px;
+  }
+  .tag-sticker-body {
+    padding: 20px 18px 15px;
+  }
+  .audience .input-shell input {
+    font-size: 30px !important;
+    height: 70px !important;
+  }
+  .audience .input-shell > span {
+    top: 29px;
+  }
+  .audience .submit-tag {
+    height: 58px;
+    margin-top: 18px;
+    font-size: 21px;
+  }
+  .street-ticker {
+    margin-bottom: 23px;
+  }
+  .street-ticker span {
+    font-size: 18px;
+  }
+  .audience-footer {
+    gap: 15px;
+    font-size: 9px;
+  }
+  .audience-footer b {
+    font-size: 8px;
+  }
+  .audience .registration {
+    display: none;
+  }
+  .audience .receipt h1 {
+    font-size: clamp(60px, 13vw, 90px);
+  }
+}
+@media (max-width: 350px) {
+  .street-stamp {
+    display: none;
+  }
+  .poster-kicker {
+    gap: 8px;
+    font-size: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .audience * {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}

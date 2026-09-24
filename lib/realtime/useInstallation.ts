@@ -1,6 +1,5 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import type { Command, Snapshot } from '../types';
 export class ApiError extends Error {
   constructor(
@@ -70,35 +69,23 @@ export function useInstallation(
   useEffect(() => {
     active.current = true;
     void refresh();
-    const interval = setInterval(refresh, role === 'wall' ? 1500 : 2500);
+    const interval = setInterval(
+      () => {
+        if (document.visibilityState === 'visible') void refresh();
+      },
+      role === 'audience' ? 4000 : 1000,
+    );
     const online = () => void refresh();
     window.addEventListener('online', online);
     const visibility = () => {
       if (document.visibilityState === 'visible') void refresh();
     };
     document.addEventListener('visibilitychange', visibility);
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
-      key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-    const client =
-      url && key
-        ? createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
-        : null;
-    const channel = client
-      ?.channel(`installation-${role}`)
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'installation_signal' },
-        () => void refresh(),
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') void refresh();
-      });
     return () => {
       active.current = false;
       clearInterval(interval);
       window.removeEventListener('online', online);
       document.removeEventListener('visibilitychange', visibility);
-      if (client && channel) void client.removeChannel(channel);
     };
   }, [refresh, role]);
   const send = useCallback(

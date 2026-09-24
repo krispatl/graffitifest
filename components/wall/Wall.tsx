@@ -25,7 +25,7 @@ export function Wall() {
     void QRCode.toDataURL(audience, {
       width: 300,
       margin: 2,
-      color: { dark: '#101110', light: '#d5ff38' },
+      color: { dark: '#101110', light: '#eaff35' },
     }).then(setQr);
     let active = true,
       busy = false;
@@ -105,7 +105,7 @@ export function Wall() {
     return (
       <main className="wall-pair">
         <span className="wordmark">
-          GRAFFITI<span>FEST</span>
+          cyber<span>Writer</span>
         </span>
         <h1>
           CONNECT THIS
@@ -134,8 +134,9 @@ export function Wall() {
       {s && !s.current && !s.blackout && !calibrate && (
         <div className="wall-idle">
           <span className="wordmark">
-            GRAFFITI<span>FEST</span>
+            cyber<span>Writer</span>
           </span>
+          <div className="wall-idle-kicker">LIVE GRAFFITI. ONE NAME AT A TIME.</div>
           <h1>
             YOUR NAME.
             <br />

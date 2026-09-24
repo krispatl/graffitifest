@@ -1,12 +1,14 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { documents, documentPath } from './blob';
 import type { DatabaseSync } from 'node:sqlite';
 import type { Installation } from '../types';
 import { initialState } from '../queue/machine';
 
-const remote = () => process.env.STORAGE_DRIVER === 'supabase';
+const remote = () => process.env.STORAGE_DRIVER === 'blob' || Boolean(process.env.VERCEL);
 function assertLocal() {
-  if (process.env.VERCEL) throw new Error('Vercel requires STORAGE_DRIVER=supabase.');
+  if (process.env.VERCEL) throw new Error('Vercel requires a connected private Blob store.');
 }
 let dbPromise: Promise<DatabaseSync> | undefined;
 async function localDb() {
@@ -28,35 +30,8 @@ async function localDb() {
     })();
   return dbPromise;
 }
-async function rest(route: string, init: RequestInit = {}) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
-    key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) throw new Error('Supabase server configuration is missing.');
-  const res = await fetch(`${url}/rest/v1/${route}`, {
-    ...init,
-    cache: 'no-store',
-    headers: { apikey: key, 'Content-Type': 'application/json', ...init.headers },
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!res.ok) {
-    console.error('Database request failed', res.status, route.split('?')[0]);
-    throw new Error('Persistent storage is unavailable.');
-  }
-  return res.status === 204 ? null : res.json();
-}
 export async function readState(): Promise<Installation> {
-  if (remote()) {
-    let rows = await rest('installation?id=eq.1&select=payload');
-    if (!rows.length) {
-      await rest('installation', {
-        method: 'POST',
-        headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' },
-        body: JSON.stringify({ id: 1, version: 0, payload: initialState() }),
-      });
-      rows = await rest('installation?id=eq.1&select=payload');
-    }
-    return rows[0].payload;
-  }
+  if (remote()) return documents.read(documentPath('installation'), initialState);
   const db = await localDb();
   return JSON.parse(
     (db.prepare('SELECT payload FROM installation WHERE id=1').get() as { payload: string })
@@ -64,13 +39,6 @@ export async function readState(): Promise<Installation> {
   );
 }
 async function compareAndSwap(expected: number, state: Installation): Promise<boolean> {
-  if (remote())
-    return Boolean(
-      await rest('rpc/save_installation', {
-        method: 'POST',
-        body: JSON.stringify({ expected_version: expected, new_payload: state }),
-      }),
-    );
   const db = await localDb();
   return (
     db
@@ -83,6 +51,19 @@ async function compareAndSwap(expected: number, state: Installation): Promise<bo
 export async function transact<T>(
   fn: (state: Installation) => T,
 ): Promise<{ state: Installation; result: T }> {
+  if (remote()) {
+    const { value: state, result } = await documents.transact(
+      documentPath('installation'),
+      initialState,
+      (state) => {
+        const before = JSON.stringify(state);
+        const result = fn(state);
+        if (JSON.stringify(state) !== before) state.version++;
+        return result;
+      },
+    );
+    return { state, result };
+  }
   for (let i = 0; i < 24; i++) {
     const state = await readState(),
       before = JSON.stringify(state),
@@ -96,13 +77,25 @@ export async function transact<T>(
   throw new Error('The queue is busy. Please try again.');
 }
 export async function allowRate(key: string, maximum: number, windowMs: number): Promise<boolean> {
-  if (remote())
-    return Boolean(
-      await rest('rpc/consume_rate', {
-        method: 'POST',
-        body: JSON.stringify({ rate_key: key, maximum, window_ms: windowMs }),
-      }),
+  if (remote()) {
+    const hash = createHash('sha256').update(key).digest('hex');
+    const { result } = await documents.transact<
+      Record<string, { count: number; expires: number }>,
+      boolean
+    >(
+      documentPath(`rates-${hash[0]}`),
+      () => ({}),
+      (rates) => {
+        const now = Date.now();
+        for (const id of Object.keys(rates)) if (rates[id].expires <= now) delete rates[id];
+        const row = (rates[hash] ??= { count: 0, expires: now + windowMs });
+        if (row.count >= maximum) return false;
+        row.count++;
+        return true;
+      },
     );
+    return result;
+  }
   const db = await localDb(),
     now = Date.now();
   db.prepare('DELETE FROM limits WHERE expires < ?').run(now);

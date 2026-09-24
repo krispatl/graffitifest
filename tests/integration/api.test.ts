@@ -25,8 +25,6 @@ test(
           NEXT_PUBLIC_APP_URL: origin,
           CONTROL_PASSWORD: 'integration-only-password',
           SESSION_SECRET: 'integration-only-secret-more-than-thirty-two-characters',
-          NEXT_PUBLIC_SUPABASE_URL: '',
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: '',
           VERCEL: '',
         },
       },

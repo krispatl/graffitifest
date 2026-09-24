@@ -97,7 +97,7 @@ export function Control() {
     return (
       <main className="login-screen">
         <a className="wordmark" href="/">
-          GRAFFITI<span>FEST</span>
+          cyber<span>Writer</span>
         </a>
         <div className="login-panel">
           <Shield size={32} className="lime" />
@@ -137,7 +137,7 @@ export function Control() {
     return (
       <main className="login-screen">
         <span className="wordmark">
-          GRAFFITI<span>FEST</span>
+          cyber<span>Writer</span>
         </span>
         <p role="status">{live.error || 'Connecting to the installation…'}</p>
         {live.error && <button onClick={() => void refresh()}>RETRY CONNECTION</button>}
@@ -171,7 +171,7 @@ export function Control() {
       <header className="control-header">
         <div>
           <a href="/control" className="wordmark">
-            GRAFFITI<span>FEST</span>
+            cyber<span>Writer</span>
           </a>
           <span className="backstage-label">BACKSTAGE</span>
         </div>
@@ -778,7 +778,7 @@ export function Control() {
         </section>
       )}
       <footer className="control-footer">
-        <span>ESPRONCEDA / GRAFFITIFEST</span>
+        <span>ESPRONCEDA / cyberWriter</span>
         <span>
           {s.current
             ? `PERFORMANCE ${s.current.id.slice(0, 8).toUpperCase()}`

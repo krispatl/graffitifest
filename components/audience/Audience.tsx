@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, Check, Plus } from 'lucide-react';
+import { ArrowUpRight, Check, Plus, MoveUpRight, Star } from 'lucide-react';
 import { api, useInstallation } from '@/lib/realtime/useInstallation';
 export function Audience() {
   const [name, setName] = useState(''),
@@ -40,11 +40,11 @@ export function Audience() {
   return (
     <main className="audience">
       <header className="audience-header">
-        <a href="/" className="wordmark" aria-label="Graffitifest home">
-          GRAFFITI<span>FEST</span>
+        <a href="/" className="wordmark" aria-label="cyberWriter home">
+          cyber<span>Writer</span>
           <sup>®</sup>
         </a>
-        <span className="edition">A LIVE PAINT EXPERIENCE</span>
+        <span className="edition">LIVE GRAFFITI / BARCELONA</span>
       </header>
       <section className="audience-stage">
         <div className="eyebrow">
@@ -56,46 +56,69 @@ export function Audience() {
               : 'CONNECTING TO THE WALL'}
         </div>
         {!entry ? (
-          <>
-            <h1>
-              PUT YOUR NAME
-              <br />
-              ON THE{' '}
-              <span className="lime wall-word">
-                WALL
-                <svg viewBox="0 0 500 30" aria-hidden="true">
-                  <path d="M5 23 Q230 0 492 12 M75 27 Q270 8 444 17" />
-                </svg>
-              </span>
-            </h1>
-            <form onSubmit={submit} className="tag-form">
-              <label htmlFor="tag">YOUR NAME. YOUR MOMENT.</label>
-              <div className="input-shell">
-                <input
-                  id="tag"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  maxLength={16}
-                  placeholder="YOUR TAG"
-                  autoComplete="off"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  required
-                  aria-describedby="tag-help"
-                />
-                <span>{name.length}/16</span>
+          <div className="drop-layout">
+            <div className="poster-copy">
+              <div className="poster-kicker">
+                <span>FROM THE STREET</span>
+                <MoveUpRight size={32} />
+                <span>TO THE SCREEN</span>
               </div>
-              <button
-                className="submit-tag"
-                disabled={pending || !name.trim() || connection !== 'connected'}
-              >
-                {pending ? 'SENDING…' : 'SUBMIT'}
-                <ArrowUpRight size={30} />
-              </button>
-              <p id="tag-help">One name. A whole wall. Wait for your moment.</p>
+              <h1>
+                MAKE
+                <br />
+                YOUR <span>MARK.</span>
+              </h1>
+              <p className="poster-caption">
+                Your name. Remixed in paint.
+                <br />
+                One wall. All eyes on you.
+              </p>
+              <span className="street-stamp">
+                <Star size={18} fill="currentColor" /> NO TWO TAGS ALIKE
+              </span>
+            </div>
+            <form onSubmit={submit} className="tag-form">
+              <div className="tag-sticker-title">
+                HELLO<span>my name is</span>
+              </div>
+              <div className="tag-sticker-body">
+                <label htmlFor="tag">YOUR NAME. YOUR MOMENT.</label>
+                <div className="input-shell">
+                  <input
+                    id="tag"
+                    name="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    maxLength={16}
+                    placeholder="YOUR TAG"
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    required
+                    aria-describedby="tag-help"
+                  />
+                  <span>{name.length}/16</span>
+                </div>
+                <button
+                  className="submit-tag"
+                  disabled={pending || !name.trim() || connection !== 'connected'}
+                >
+                  {pending ? 'SENDING…' : 'DROP YOUR TAG'}
+                  <ArrowUpRight size={30} />
+                </button>
+                <p id="tag-help">
+                  Drop your name. Get in the queue.
+                  <br />
+                  Look up when it's your turn.
+                </p>
+              </div>
+              <div className="sticker-bottom">
+                <span>01 / WRITE</span>
+                <span>02 / WATCH</span>
+                <span>03 / OWN IT</span>
+              </div>
             </form>
-          </>
+          </div>
         ) : (
           <div className="receipt" aria-live="polite">
             <div className="receipt-symbol">
@@ -166,6 +189,12 @@ export function Audience() {
           </p>
         )}
       </section>
+      <div className="street-ticker" aria-hidden="true">
+        <span>
+          MAKE SOME NOISE ✦ LEAVE YOUR MARK ✦ cyberWriter ✦ MAKE SOME NOISE ✦ LEAVE YOUR MARK ✦
+          cyberWriter ✦
+        </span>
+      </div>
       <footer className="audience-footer">
         <span>
           ESPRONCEDA
