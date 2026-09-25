@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici';
-import { createDocumentStore, documents, type DocumentTransport } from '../lib/database/blob';
+import {
+  canonicalEtag,
+  createDocumentStore,
+  documents,
+  type DocumentTransport,
+} from '../lib/database/blob';
 // Fail mock mismatches immediately instead of entering the SDK network retry loop.
 process.env.VERCEL_BLOB_RETRIES = '0';
 
@@ -118,6 +123,9 @@ test('Blob SDK sends conditional writes and retries with the winning document', 
   const reads = mock.get('https://teststore.private.blob.vercel-storage.com');
   const writes = mock.get('https://vercel.com');
   const read = { path: '/race.json?cache=0', method: 'GET' };
+  writes.intercept({ path: '/api/blob?url=race.json', method: 'GET' }).reply(200, { etag: '"v1"' });
+  writes.intercept({ path: '/api/blob?url=race.json', method: 'GET' }).reply(200, { etag: '"v2"' });
+
   // A different function creates the document between our read and first write.
   reads.intercept(read).reply(404, '');
   writes
@@ -139,7 +147,7 @@ test('Blob SDK sends conditional writes and retries with the winning document', 
       headers: { 'x-if-match': '"v1"', 'x-allow-overwrite': '1' },
     })
     .reply(412, { error: { code: 'precondition_failed' } });
-  reads.intercept(read).reply(200, { count: 20 }, { headers: { etag: '"v2"' } });
+  reads.intercept(read).reply(200, { count: 20 }, { headers: { etag: 'W/"v2"' } });
   writes
     .intercept({
       path: '/api/blob/?pathname=race.json',
@@ -168,4 +176,10 @@ test('Blob SDK sends conditional writes and retries with the winning document', 
     if (priorToken === undefined) delete process.env.BLOB_READ_WRITE_TOKEN;
     else process.env.BLOB_READ_WRITE_TOKEN = priorToken;
   }
+});
+
+test('delivery and API ETags normalize without ignoring document versions', () => {
+  assert.equal(canonicalEtag('W/"v1"'), canonicalEtag('v1'));
+  assert.equal(canonicalEtag('"v1"'), canonicalEtag('v1'));
+  assert.notEqual(canonicalEtag('W/"v1"'), canonicalEtag('"v2"'));
 });

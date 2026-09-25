@@ -1,8 +1,15 @@
-import { get, put, BlobPreconditionFailedError } from '@vercel/blob';
+import { get, head, put, BlobPreconditionFailedError } from '@vercel/blob';
 
 export interface DocumentTransport {
   read(path: string): Promise<{ text: string; etag: string } | null>;
   write(path: string, text: string, etag: string | null): Promise<boolean>;
+}
+
+export function canonicalEtag(value: string) {
+  return value
+    .trim()
+    .replace(/^W\//, '')
+    .replace(/^"(.*)"$/, '$1');
 }
 
 const transport: DocumentTransport = {
@@ -10,6 +17,7 @@ const transport: DocumentTransport = {
     const result = await get(path, {
       access: 'private',
       useCache: false,
+      headers: { 'Accept-Encoding': 'identity' },
       abortSignal: AbortSignal.timeout(10000),
     });
     if (!result) return null;
@@ -19,13 +27,23 @@ const transport: DocumentTransport = {
   },
   async write(path, text, etag) {
     try {
+      let writeEtag = etag;
+      if (etag !== null) {
+        // Delivery HTTP ETags may be weak/quoted by compression middleware.
+        // Obtain the storage API's exact write token, but only for the same version
+        // we read. Never substitute a newer token onto an older document body.
+        const current = await head(path, { abortSignal: AbortSignal.timeout(10000) });
+        if (!current.etag) throw new Error('Storage metadata is missing its concurrency token.');
+        if (canonicalEtag(current.etag) !== canonicalEtag(etag)) return false;
+        writeEtag = current.etag;
+      }
       await put(path, text, {
         access: 'private',
         contentType: 'application/json',
         addRandomSuffix: false,
         abortSignal: AbortSignal.timeout(10000),
         allowOverwrite: etag !== null,
-        ...(etag ? { ifMatch: etag } : {}),
+        ...(writeEtag ? { ifMatch: writeEtag } : {}),
       });
       return true;
     } catch (error) {

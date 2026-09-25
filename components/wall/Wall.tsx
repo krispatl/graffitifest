@@ -41,7 +41,10 @@ export function Wall() {
           live.accept(data);
         }
       } catch (e) {
-        if (active && e instanceof ApiError && e.status === 401) setPaired(false);
+        if (active) {
+          if (e instanceof ApiError && e.status === 401) setPaired(false);
+          else setPairError((e as Error).message || 'Projector connection failed. Retrying.');
+        }
       } finally {
         busy = false;
       }
@@ -126,6 +129,13 @@ export function Wall() {
       className={`wall-output ${calibrate ? 'calibrating' : ''}`}
       onDoubleClick={() => void enterFullscreen()}
     >
+      {pairError && !s?.blackout && (
+        <div className="wall-connection-error" role="alert">
+          <strong>PROJECTOR CONNECTION INTERRUPTED</strong>
+          <p>{pairError}</p>
+          <p>Retrying automatically. Check Vercel logs if this continues.</p>
+        </div>
+      )}
       <GraffitiCanvas
         state={s}
         offset={live.offset.current}
